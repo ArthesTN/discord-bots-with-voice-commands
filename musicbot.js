@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { Client, Intents, Collection, VoiceChannel, GuildMember, MessageEmbed } = require("discord.js");
 const { joinVoiceChannel, getVoiceConnection, VoiceConnection,AudioPlayerStatus } = require('@discordjs/voice');
 
