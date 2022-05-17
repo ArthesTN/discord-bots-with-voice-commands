@@ -8,6 +8,11 @@ pip install ffmpeg
 
 pip install SpeechRecognition
 
+Create an .env file
+
+Create a file named "names.json"
+
+Create a file named "vcnames.json"
 
 API Keys:
 
