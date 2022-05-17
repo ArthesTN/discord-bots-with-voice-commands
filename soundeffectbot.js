@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { Client, Intents, Collection, VoiceChannel, GuildMember, MessageEmbed } = require("discord.js");
+const { Client, Intents, Collection, VoiceChannel, GuildMember, MessageEmbed, NewsChannel } = require("discord.js");
 const { joinVoiceChannel, getVoiceConnection, VoiceConnection,AudioPlayerStatus } = require('@discordjs/voice');
 const https = require("https");
 const { VoiceConnectionStatus, entersState, createAudioPlayer } = require('@discordjs/voice');
@@ -43,7 +43,7 @@ client.on("ready", () => {
     exec('python ' + deletewavs, function (err, stdout, stderr) {
         if (err) {
             console.error(stderr);
-            console.log("badthings1")
+            console.log("could not delete the speechaudios files")
             
         }
         console.log("recordings are deleted")
@@ -60,7 +60,8 @@ client.on('voiceStateUpdate', async( oldState, newState)=>{
     
     //console.log(oldState.member.voice.channel)
     //console.log(newState.member.voice.channel)
-    if( oldState.member.voice.channel === newState.member.voice.channel){
+    if( oldState.member.voice.channel === newState.member.voice.channel ){
+        if(newState.member != client.user.id){
         console.log(oldState.member.displayName +" voice status changed")
         
         await sleep(200)
@@ -69,6 +70,23 @@ client.on('voiceStateUpdate', async( oldState, newState)=>{
         fs.unlinkSync(pcmfilename, (err)=>{
             if (err) console.log("could not delete pcm file")
         })}
+        const wavfilename = path.join("speechaudios", "wav" + newState.member.id  + ".wav" )
+        if (fs.existsSync(wavfilename)){
+        fs.unlinkSync(wavfilename, (err)=>{
+            if (err) console.log("could not delete wav file")
+        })}}
+        else{
+            var deletewavs = path.join(discordbot2, 'deletewavs.py')
+            exec('python ' + deletewavs, function (err, stdout, stderr) {
+                if (err) {
+                    console.error(stderr);
+                    console.log("could not delete the speechaudios files")
+                    
+                }
+                console.log("recordings are deleted")
+            });
+        }
+        
     }
     
 } )
@@ -152,17 +170,25 @@ async function leaveChannel(message){
 
 }
 async function connectToChannel(channel,message) {
-    
-	const voiceChannel = message.member.voice.channel;
+    var voiceConnection;
+    const voiceChannel = message.member.voice.channel;
+    if(!message.guild.me.voice.channel){
+	
     //console.log(voiceChannel)
-    const voiceConnection = joinVoiceChannel({
+    voiceConnection = joinVoiceChannel({
         channelId: channel.id,
         guildId: channel.guild.id,
         adapterCreator: channel.guild.voiceAdapterCreator,
         selfDeaf:false,
         selfMute:false
     });
-    message.channel.send("joining")
+    
+    }
+    else {
+        await transfer(message.guild.me, channel)
+        voiceConnection = getVoiceConnection(message.guild.id)
+    }
+    await message.channel.send("joining")
     stream2pcm(voiceConnection, message)
 }
 async function stream2pcm(voiceConnection, message){
@@ -259,7 +285,7 @@ async function pythonspeech(voiceConnection, user, message, pcmfilename, wavfile
                 console.log(err);
                 console.log("badthings")    
             }  
-            
+            data = data.toLowerCase()
             const member = message.guild.members.cache.get(userId)
             if (data.length > 0){
                 console.log(member.displayName + ": " + data)}
@@ -473,9 +499,9 @@ async function help(message){
       {name: "deafen a user", value: "close the ears {user nickname}"},
       {name: "undeafen a user", value: "listen to {user nickname}"},
       {name: "Examples", value: "\u200b"},
-      {name:"!membername @RecklessJohn John eater", value: "\u200b"},
+      {name:"!membername @john grass eater", value: "\u200b"},
       {name:"!vcname 614296015964471269 cage", value: "\u200b"},
-      {name:"in Voice Channel say: transfer John to the cage", value: "\u200b"},
+      {name:"in Voice Channel say: transfer grass eater to the cage", value: "\u200b"},
       )
       
       
@@ -734,7 +760,7 @@ async function naming(message){
     
     const str = message.toString().toLowerCase().split(" ")
     var alias = ""
-    for (let w = 2; w < str.length; w++){
+    for (let w = 4; w < str.length; w++){
         if (w < str.length - 1){
         alias = alias + str[w] + " "}
         else{
