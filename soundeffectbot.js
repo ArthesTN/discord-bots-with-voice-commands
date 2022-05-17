@@ -473,9 +473,9 @@ async function help(message){
       {name: "deafen a user", value: "close the ears {user nickname}"},
       {name: "undeafen a user", value: "listen to {user nickname}"},
       {name: "Examples", value: "\u200b"},
-      {name:"!membername @john grass eater", value: "\u200b"},
+      {name:"!membername @RecklessJohn John eater", value: "\u200b"},
       {name:"!vcname 614296015964471269 cage", value: "\u200b"},
-      {name:"in Voice Channel say: transfer grass eater to the cage", value: "\u200b"},
+      {name:"in Voice Channel say: transfer John to the cage", value: "\u200b"},
       )
       
       
